@@ -50,7 +50,7 @@ export default async function Home() {
         <CategoryManager initialCategories={categories} />
       </main>
 
-      <footer className="py-8 text-center text-gray-600 dark:text-gray-400">
+      <footer className="py-8 text-center text-gray-600 dark:text-gray-400 bg-gradient-to-t from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
         <p>
           © {new Date().getFullYear()} Subscription Tracker - Manage your
           subscriptions efficiently
