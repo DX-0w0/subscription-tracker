@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Subscription } from "@/utils/subscriptions";
-import SubscriptionManager from "./SubscriptionManager";
+import { useState } from 'react';
+import { Subscription } from '@/utils/subscriptions';
+import SubscriptionManager from './SubscriptionManager';
 
 export interface CategoryWithSubscriptions {
   id: number;
@@ -20,7 +20,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     initialCategories || []
   );
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(
     null
   );
@@ -32,10 +32,10 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/categories", {
-        method: "POST",
+      const response = await fetch('/api/categories', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name: newCategoryName.trim() }),
       });
@@ -46,15 +46,15 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
           { ...newCategory, subscriptions: [] },
           ...prev,
         ]); // Add to the beginning
-        setNewCategoryName("");
+        setNewCategoryName('');
         setIsCategoryModalOpen(false);
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Failed to add category");
+        alert(errorData.error || 'Failed to add category');
       }
     } catch (error) {
-      console.error("Error adding category:", error);
-      alert("An error occurred while adding the category");
+      console.error('Error adding category:', error);
+      alert('An error occurred while adding the category');
     } finally {
       setIsLoading(false);
     }
@@ -73,9 +73,27 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     );
   };
 
+  const handleDeleteSubscription = (
+    categoryId: number,
+    subscriptionId: number
+  ) => {
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.id === categoryId
+          ? {
+              ...cat,
+              subscriptions: cat.subscriptions.filter(
+                (sub) => sub.id !== subscriptionId
+              ),
+            }
+          : cat
+      )
+    );
+  };
+
   const handleCategoryModalClose = () => {
     setIsCategoryModalOpen(false);
-    setNewCategoryName("");
+    setNewCategoryName('');
   };
 
   const toggleCategoryExpansion = (id: number) => {
@@ -84,7 +102,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
 
   // Handle Enter key in the category input field
   const handleCategoryKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !isLoading) {
+    if (e.key === 'Enter' && !isLoading) {
       handleAddCategory();
     }
   };
@@ -137,7 +155,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                      expandedCategoryId === category.id ? "rotate-180" : ""
+                      expandedCategoryId === category.id ? 'rotate-180' : ''
                     }`}
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -159,6 +177,9 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                     subscriptions={category.subscriptions}
                     onAddSubscription={(sub) =>
                       handleAddSubscription(category.id, sub)
+                    }
+                    onSubscriptionDelete={(subId) =>
+                      handleDeleteSubscription(category.id, subId)
                     }
                   />
                 </div>
@@ -234,7 +255,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                 onClick={handleAddCategory}
                 disabled={isLoading || !newCategoryName.trim()}
                 className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 ${
-                  isLoading ? "cursor-not-allowed" : ""
+                  isLoading ? 'cursor-not-allowed' : ''
                 }`}
               >
                 {isLoading ? (
@@ -262,7 +283,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                     Adding...
                   </span>
                 ) : (
-                  "Add"
+                  'Add'
                 )}
               </button>
             </div>
