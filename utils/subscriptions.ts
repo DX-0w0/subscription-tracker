@@ -24,11 +24,26 @@ export async function getSubscriptionsByCategory(categoryId: number): Promise<Su
   }
 }
 
+export async function getAllSubscriptionsWithCategories(): Promise<Subscription[]> {
+  try {
+    const subscriptions = db.prepare(`
+      SELECT s.*, c.name as category_name 
+      FROM subscriptions s
+      LEFT JOIN categories c ON s.category_id = c.id
+      ORDER BY s.created_at DESC
+    `).all() as Subscription[];
+    return subscriptions;
+  } catch (error) {
+    console.error('Database error in getAllSubscriptionsWithCategories:', error);
+    throw new Error('Failed to fetch subscriptions with categories from database');
+  }
+}
+
 export async function createSubscription(
-  name: string, 
-  cost: number, 
-  billingCycle: string, 
-  accountInfo: string, 
+  name: string,
+  cost: number,
+  billingCycle: string,
+  accountInfo: string,
   categoryId: number
 ): Promise<Subscription> {
   try {

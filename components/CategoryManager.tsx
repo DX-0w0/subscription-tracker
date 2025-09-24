@@ -4,18 +4,19 @@ import { useState } from "react";
 import { Subscription } from "@/utils/subscriptions";
 import SubscriptionManager from "./SubscriptionManager";
 
-interface Category {
+export interface CategoryWithSubscriptions {
   id: number;
   name: string;
-  created_at?: string;
+  created_at: string;
+  subscriptions: Subscription[];
 }
 
 interface CategoryManagerProps {
-  initialCategories: Category[];
+  initialCategories: CategoryWithSubscriptions[];
 }
 
 const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
-  const [categories, setCategories] = useState<Category[]>(
+  const [categories, setCategories] = useState<CategoryWithSubscriptions[]>(
     initialCategories || []
   );
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -24,9 +25,6 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     null
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [subscriptionsByCategory, setSubscriptionsByCategory] = useState<
-    Record<number, Subscription[]>
-  >({});
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return;
@@ -44,7 +42,10 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
 
       if (response.ok) {
         const newCategory = await response.json();
-        setCategories((prev) => [newCategory, ...prev]); // Add to the beginning
+        setCategories((prev) => [
+          { ...newCategory, subscriptions: [] },
+          ...prev,
+        ]); // Add to the beginning
         setNewCategoryName("");
         setIsCategoryModalOpen(false);
       } else {
@@ -63,10 +64,13 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     categoryId: number,
     subscription: Subscription
   ) => {
-    setSubscriptionsByCategory((prev) => ({
-      ...prev,
-      [categoryId]: [...(prev[categoryId] || []), subscription],
-    }));
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.id === categoryId
+          ? { ...cat, subscriptions: [...cat.subscriptions, subscription] }
+          : cat
+      )
+    );
   };
 
   const handleCategoryModalClose = () => {
@@ -126,10 +130,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                     {category.name}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {(subscriptionsByCategory[category.id]?.length || 0) +
-                      (initialCategories.find((c) => c.id === category.id)
-                        ?.subscriptionCount || 0)}{" "}
-                    subscriptions
+                    {category.subscriptions.length} subscriptions
                   </p>
                 </div>
                 <div className="flex items-center">
@@ -155,7 +156,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                 <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700/30">
                   <SubscriptionManager
                     categoryId={category.id}
-                    subscriptions={subscriptionsByCategory[category.id] || []}
+                    subscriptions={category.subscriptions}
                     onAddSubscription={(sub) =>
                       handleAddSubscription(category.id, sub)
                     }
