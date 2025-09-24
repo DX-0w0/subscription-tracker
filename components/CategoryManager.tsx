@@ -1,35 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
+  created_at?: string;
 }
 
-const CategoryManager = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+interface CategoryManagerProps {
+  initialCategories: Category[];
+}
+
+const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
+  const [categories, setCategories] = useState<Category[]>(initialCategories || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return;
 
     setIsLoading(true);
     
-    // Simulate API call delay
-    setTimeout(() => {
-      const newCategory: Category = {
-        id: `cat-${Date.now()}`,
-        name: newCategoryName.trim(),
-      };
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newCategoryName.trim() }),
+      });
 
-      setCategories(prev => [...prev, newCategory]);
-      setNewCategoryName('');
+      if (response.ok) {
+        const newCategory = await response.json();
+        setCategories(prev => [newCategory, ...prev]); // Add to the beginning
+        setNewCategoryName('');
+        setIsModalOpen(false);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to add category');
+      }
+    } catch (error) {
+      console.error('Error adding category:', error);
+      alert('An error occurred while adding the category');
+    } finally {
       setIsLoading(false);
-      setIsModalOpen(false);
-    }, 300);
+    }
   };
 
   const handleModalClose = () => {
@@ -61,15 +78,21 @@ const CategoryManager = () => {
 
       {/* Category Containers */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((category) => (
-          <div 
-            key={category.id} 
-            className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-200"
-          >
-            <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">0 subscriptions</p>
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <div 
+              key={category.id} 
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-200"
+            >
+              <h3 className="font-medium text-gray-900 dark:text-white">{category.name}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">0 subscriptions</p>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 dark:text-gray-400">No categories yet. Create your first category!</p>
           </div>
-        ))}
+        )}
       </div>
 
       {/* Modal */}
