@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Subscription } from "@/utils/categories";
+import { Subscription } from "@/utils/subscriptions";
 import SubscriptionManager from "./SubscriptionManager";
 
 interface Category {

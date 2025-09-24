@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server";
-import { createSubscription } from "@/utils/categories";
+import { NextRequest } from 'next/server';
+import { createSubscription } from '@/utils/subscriptions';
 
 export async function POST(request: NextRequest) {
   try {

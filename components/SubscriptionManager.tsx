@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Subscription } from "@/utils/categories";
+import { useState } from 'react';
+import { Subscription } from '@/utils/subscriptions';
 
 interface SubscriptionManagerProps {
   categoryId: number;
