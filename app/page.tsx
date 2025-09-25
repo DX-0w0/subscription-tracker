@@ -1,7 +1,9 @@
 import CategoryManager from '@/components/CategoryManager';
 import { getAllCategories } from '@/utils/categories';
-import { getSubscriptionsByCategory } from '@/utils/subscriptions';
-import { Subscription } from '@/types';
+import {
+  getSubscriptionsByCategory,
+  Subscription,
+} from '@/utils/subscriptions';
 
 export interface CategoryWithSubscriptions {
   id: number;
