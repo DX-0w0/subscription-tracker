@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Subscription } from '@/utils/subscriptions';
 import SubscriptionModal from './SubscriptionModal';
+import SubscriptionCancellationButton from './SubscriptionCancellationButton';
 
 interface SubscriptionManagerProps {
   categoryId: number;
   subscriptions: Subscription[];
   onAddSubscription: (subscription: Subscription) => void;
   onSubscriptionDelete: (subscriptionId: number) => void;
+  onSubscriptionUpdate: (
+    categoryId: number,
+    subscriptionId: number,
+    cancelledAt: string | null
+  ) => void;
 }
 
 const SubscriptionManager = ({
@@ -14,6 +20,7 @@ const SubscriptionManager = ({
   subscriptions,
   onAddSubscription,
   onSubscriptionDelete,
+  onSubscriptionUpdate,
 }: SubscriptionManagerProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newSubscription, setNewSubscription] = useState({
@@ -151,24 +158,34 @@ const SubscriptionManager = ({
                 )}
               </div>
             </div>
-            <button
-              onClick={() => handleDeleteSubscription(sub.id)}
-              className="ml-4 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-              aria-label="Delete subscription"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+            <div className="flex items-center space-x-2">
+              <SubscriptionCancellationButton
+                subscriptionId={sub.id}
+                initialCancelledAt={sub.cancelled_at}
+                onCancellationStatusChange={(id, cancelledAt) => {
+                  // Call the parent component's function to update the subscription
+                  onSubscriptionUpdate(categoryId, id, cancelledAt);
+                }}
+              />
+              <button
+                onClick={() => handleDeleteSubscription(sub.id)}
+                className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                aria-label="Delete subscription"
               >
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         ))}
       </div>

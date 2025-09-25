@@ -29,7 +29,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
 
   const handleAddCategory = async (name: string) => {
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('/api/categories', {
         method: 'POST',
@@ -41,7 +41,10 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
 
       if (response.ok) {
         const newCategory = await response.json();
-        setCategories(prev => [{...newCategory, subscriptions: []}, ...prev]); // Add to the beginning
+        setCategories((prev) => [
+          { ...newCategory, subscriptions: [] },
+          ...prev,
+        ]); // Add to the beginning
         setIsCategoryModalOpen(false);
       } else {
         const errorData = await response.json();
@@ -94,7 +97,26 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     setExpandedCategoryId(expandedCategoryId === id ? null : id);
   };
 
-  
+  const handleSubscriptionUpdate = (
+    categoryId: number,
+    subscriptionId: number,
+    cancelledAt: string | null
+  ) => {
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.id === categoryId
+          ? {
+              ...cat,
+              subscriptions: cat.subscriptions.map((sub) =>
+                sub.id === subscriptionId
+                  ? { ...sub, cancelled_at: cancelledAt }
+                  : sub
+              ),
+            }
+          : cat
+      )
+    );
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -169,6 +191,9 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                     }
                     onSubscriptionDelete={(subId) =>
                       handleDeleteSubscription(category.id, subId)
+                    }
+                    onSubscriptionUpdate={(subId, cancelledAt) =>
+                      handleSubscriptionUpdate(category.id, subId, cancelledAt.toString())
                     }
                   />
                 </div>

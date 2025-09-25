@@ -27,6 +27,7 @@ db.exec(`
     account_info TEXT,
     category_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cancelled_at DATETIME,
     FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
   )
 `);

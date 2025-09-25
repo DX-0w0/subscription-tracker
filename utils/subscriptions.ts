@@ -8,6 +8,7 @@ export interface Subscription {
   account_info: string;
   category_id: number;
   created_at: string;
+  cancelled_at?: string | null;
 }
 
 export async function getSubscriptionsByCategory(
@@ -41,8 +42,8 @@ export async function createSubscription(
     const result = db
       .prepare(
         `
-      INSERT INTO subscriptions (name, cost, billing_cycle, account_info, category_id) 
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO subscriptions (name, cost, billing_cycle, account_info, category_id, cancelled_at) 
+      VALUES (?, ?, ?, ?, ?, NULL)
     `
       )
       .run(name, cost, billingCycle, accountInfo, categoryId);
@@ -55,6 +56,25 @@ export async function createSubscription(
   } catch (error) {
     console.error('Database error in createSubscription:', error);
     throw new Error('Failed to create subscription in database');
+  }
+}
+
+export async function updateSubscriptionCancellation(
+  id: number,
+  cancelledAt: string | null
+): Promise<boolean> {
+  try {
+    const result = db
+      .prepare(
+        'UPDATE subscriptions SET cancelled_at = ? WHERE id = ?'
+      )
+      .run(cancelledAt, id);
+
+    // Check if any row was actually updated
+    return result.changes > 0;
+  } catch (error) {
+    console.error('Database error in updateSubscriptionCancellation:', error);
+    throw new Error('Failed to update subscription cancellation status in database');
   }
 }
 
