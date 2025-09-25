@@ -158,29 +158,30 @@ const SubscriptionManager = ({
                 )}
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            
+            {/* Buttons Container */}
+            <div className="ml-4 flex flex-col items-end space-y-2">
               <SubscriptionCancellationButton
                 subscriptionId={sub.id}
                 initialCancelledAt={sub.cancelled_at}
                 onCancellationStatusChange={(id, cancelledAt) => {
-                  // Call the parent component's function to update the subscription
                   onSubscriptionUpdate(categoryId, id, cancelledAt);
                 }}
               />
               <button
                 onClick={() => handleDeleteSubscription(sub.id)}
-                className="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                className="p-1.5 rounded-full text-white bg-red-500 hover:bg-red-600 transition-colors"
                 aria-label="Delete subscription"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-4 w-4"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
                   <path
                     fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z"
                     clipRule="evenodd"
                   />
                 </svg>

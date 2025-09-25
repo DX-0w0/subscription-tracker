@@ -111,12 +111,13 @@ const SubscriptionCancellationButton = ({
         onClick={status === 'active' ? handleInitializeCancellation : undefined}
         disabled={isButtonDisabled}
         className={`
-          py-1 px-3 rounded-lg text-sm font-medium transition-colors duration-200
-          ${status === 'cancelled' 
-            ? 'bg-gray-400 text-white cursor-not-allowed' 
-            : status === 'active'
-            ? 'bg-orange-600 hover:bg-orange-700 text-white'
-            : 'bg-yellow-500 text-white cursor-not-allowed'
+          py-2 px-4 rounded-md text-sm font-semibold transition-colors duration-200
+          ${
+            status === 'cancelled'
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : status === 'active'
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-yellow-400 text-white cursor-not-allowed'
           }
         `}
       >
@@ -125,26 +126,26 @@ const SubscriptionCancellationButton = ({
 
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
               Confirm Cancellation
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Are you sure you want to cancel this subscription? This action cannot be undone.
+              Are you sure you want to cancel? This action is irreversible.
             </p>
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-4">
               <button
                 onClick={handleCancelDialog}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmCancellation}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
               >
-                Confirm Cancellation
+                Confirm
               </button>
             </div>
           </div>
