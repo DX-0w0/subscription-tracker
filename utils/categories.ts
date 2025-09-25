@@ -59,3 +59,15 @@ export async function createCategory(name: string): Promise<Category> {
       : new Error('Failed to create category in database');
   }
 }
+
+export async function deleteCategory(id: number): Promise<void> {
+  try {
+    const result = db.prepare('DELETE FROM categories WHERE id = ?').run(id);
+    if (result.changes === 0) {
+      throw new Error('Category not found or already deleted');
+    }
+  } catch (error) {
+    console.error('Database error in deleteCategory:', error);
+    throw new Error('Failed to delete category from database');
+  }
+}

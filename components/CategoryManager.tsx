@@ -58,6 +58,33 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     }
   };
 
+  const handleDeleteCategory = async (categoryId: number) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/categories`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: categoryId }),
+        });
+
+        if (response.ok) {
+          setCategories((prev) => prev.filter((cat) => cat.id !== categoryId));
+        } else {
+          const errorData = await response.json();
+          alert(errorData.error || 'Failed to delete category');
+        }
+      } catch (error) {
+        console.error('Error deleting category:', error);
+        alert('An error occurred while deleting the category');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const handleAddSubscription = (
     categoryId: number,
     subscription: Subscription
@@ -163,6 +190,29 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                   </p>
                 </div>
                 <div className="flex items-center">
+                  {category.subscriptions.length === 0 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent toggling the category
+                        handleDeleteCategory(category.id);
+                      }}
+                      className="text-red-500 hover:text-red-700 mr-4"
+                      disabled={isLoading}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  )}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${

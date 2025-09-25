@@ -1,5 +1,9 @@
 import { NextRequest } from 'next/server';
-import { getAllCategories, createCategory } from '@/utils/categories';
+import {
+  getAllCategories,
+  createCategory,
+  deleteCategory,
+} from '@/utils/categories';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,5 +34,24 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : 'Failed to create category';
     const status = errorMessage === 'Category already exists' ? 409 : 500;
     return Response.json({ error: errorMessage }, { status });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json();
+
+    if (!id || typeof id !== 'number') {
+      return Response.json({ error: 'Invalid category ID' }, { status: 400 });
+    }
+
+    await deleteCategory(id);
+    return Response.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    return Response.json(
+      { error: 'Failed to delete category' },
+      { status: 500 }
+    );
   }
 }
