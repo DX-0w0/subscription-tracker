@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@genkit-ai/googleai": "^1.19.3",
+    "@genkit-ai/google-genai": "^1.19.3",
     "better-sqlite3": "^12.4.1",
     "genkit": "^1.19.3",
     "next": "15.5.4",
