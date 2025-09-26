@@ -1,4 +1,4 @@
-import db from '@/lib/db';
+import pool from '@/lib/db';
 
 export interface Category {
   id: number;
@@ -8,10 +8,8 @@ export interface Category {
 
 export async function getAllCategories(): Promise<Category[]> {
   try {
-    const categories = db
-      .prepare('SELECT * FROM categories ORDER BY created_at DESC')
-      .all() as Category[];
-    return categories;
+    const result = await pool.query('SELECT * FROM categories ORDER BY created_at DESC');
+    return result.rows as Category[];
   } catch (error) {
     console.error('Database error in getAllCategories:', error);
     throw new Error('Failed to fetch categories from database');
@@ -22,10 +20,8 @@ export async function getCategoryById(
   id: number
 ): Promise<Category | undefined> {
   try {
-    const category = db
-      .prepare('SELECT * FROM categories WHERE id = ?')
-      .get(id) as Category | undefined;
-    return category;
+    const result = await pool.query('SELECT * FROM categories WHERE id = $1', [id]);
+    return result.rows[0] as Category | undefined;
   } catch (error) {
     console.error('Database error in getCategoryById:', error);
     throw new Error('Failed to fetch category from database');
@@ -35,23 +31,18 @@ export async function getCategoryById(
 export async function createCategory(name: string): Promise<Category> {
   try {
     // Check if category already exists
-    const existingCategory = db
-      .prepare('SELECT id FROM categories WHERE name = ?')
-      .get(name.trim());
+    const existingCategoryResult = await pool.query('SELECT id FROM categories WHERE name = $1', [name.trim()]);
 
-    if (existingCategory) {
+    if (existingCategoryResult.rows.length > 0) {
       throw new Error('Category already exists');
     }
 
-    const result = db
-      .prepare('INSERT INTO categories (name) VALUES (?)')
-      .run(name.trim());
+    const result = await pool.query(
+      'INSERT INTO categories (name) VALUES ($1) RETURNING *',
+      [name.trim()]
+    );
 
-    const newCategory = db
-      .prepare('SELECT * FROM categories WHERE id = ?')
-      .get(result.lastInsertRowid) as Category;
-
-    return newCategory;
+    return result.rows[0] as Category;
   } catch (error) {
     console.error('Database error in createCategory:', error);
     throw error instanceof Error
@@ -62,8 +53,8 @@ export async function createCategory(name: string): Promise<Category> {
 
 export async function deleteCategory(id: number): Promise<void> {
   try {
-    const result = db.prepare('DELETE FROM categories WHERE id = ?').run(id);
-    if (result.changes === 0) {
+    const result = await pool.query('DELETE FROM categories WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
       throw new Error('Category not found or already deleted');
     }
   } catch (error) {

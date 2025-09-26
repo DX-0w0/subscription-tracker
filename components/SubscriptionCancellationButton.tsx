@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 interface SubscriptionCancellationButtonProps {
   subscriptionId: number;
   initialCancelledAt?: string | null;
-  onCancellationStatusChange: (id: number, cancelledAt: string | null) => void;
+  onCancellationStatusChange: (id: number, status: 'processing' | 'cancelled', cancelledAt?: string | null) => void;
 }
 
 const SubscriptionCancellationButton = ({
@@ -34,6 +34,7 @@ const SubscriptionCancellationButton = ({
     setShowConfirmDialog(false);
     setStatus('initializing');
     setIsUpdating(true);
+    onCancellationStatusChange(subscriptionId, 'processing');
     
     try {
       // Update the status to processing immediately
@@ -64,7 +65,7 @@ const SubscriptionCancellationButton = ({
           }
           
           // Update the parent component about the cancellation
-          onCancellationStatusChange(subscriptionId, cancelledAt);
+          onCancellationStatusChange(subscriptionId, 'cancelled', cancelledAt);
         } catch (error) {
           console.error('Error during cancellation process:', error);
           // Optionally revert back to active state on error

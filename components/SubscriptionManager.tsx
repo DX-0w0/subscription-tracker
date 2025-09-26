@@ -11,7 +11,8 @@ interface SubscriptionManagerProps {
   onSubscriptionUpdate: (
     categoryId: number,
     subscriptionId: number,
-    cancelledAt: string | null
+    status: 'processing' | 'cancelled',
+    cancelledAt?: string | null
   ) => void;
 }
 
@@ -143,7 +144,7 @@ const SubscriptionManager = ({
                   {sub.name}
                 </span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  ${sub.cost.toFixed(2)}
+                  ${sub.cost}
                 </span>
               </div>
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -161,13 +162,19 @@ const SubscriptionManager = ({
             
             {/* Buttons Container */}
             <div className="ml-4 flex flex-col items-end space-y-2">
-              <SubscriptionCancellationButton
-                subscriptionId={sub.id}
-                initialCancelledAt={sub.cancelled_at}
-                onCancellationStatusChange={(id, cancelledAt) => {
-                  onSubscriptionUpdate(categoryId, id, cancelledAt);
-                }}
-              />
+              {sub.status === 'processing' ? (
+                <div className="py-2 px-4 rounded-md text-sm font-semibold transition-colors duration-200 bg-yellow-400 text-white cursor-not-allowed">
+                  Processing...
+                </div>
+              ) : (
+                <SubscriptionCancellationButton
+                  subscriptionId={sub.id}
+                  initialCancelledAt={sub.cancelled_at}
+                  onCancellationStatusChange={(id, status, cancelledAt) => {
+                    onSubscriptionUpdate(categoryId, id, status, cancelledAt);
+                  }}
+                />
+              )}
               <button
                 onClick={() => handleDeleteSubscription(sub.id)}
                 className="p-1.5 rounded-full text-white bg-red-500 hover:bg-red-600 transition-colors"

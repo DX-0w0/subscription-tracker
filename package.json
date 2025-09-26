@@ -2,18 +2,21 @@
   "name": "subscription-tracker",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "db:init": "node --loader ts-node/esm init-db.ts"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.19.3",
     "better-sqlite3": "^12.4.1",
     "genkit": "^1.19.3",
     "next": "15.5.4",
+    "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
@@ -27,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

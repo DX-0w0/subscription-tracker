@@ -127,7 +127,8 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
   const handleSubscriptionUpdate = (
     categoryId: number,
     subscriptionId: number,
-    cancelledAt: string | null
+    status: 'processing' | 'cancelled',
+    cancelledAt?: string | null
   ) => {
     setCategories((prev) =>
       prev.map((cat) =>
@@ -136,7 +137,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
               ...cat,
               subscriptions: cat.subscriptions.map((sub) =>
                 sub.id === subscriptionId
-                  ? { ...sub, cancelled_at: cancelledAt }
+                  ? { ...sub, status, cancelled_at: cancelledAt }
                   : sub
               ),
             }
@@ -242,9 +243,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                     onSubscriptionDelete={(subId) =>
                       handleDeleteSubscription(category.id, subId)
                     }
-                    onSubscriptionUpdate={(subId, cancelledAt) =>
-                      handleSubscriptionUpdate(category.id, subId, cancelledAt.toString())
-                    }
+                    onSubscriptionUpdate={handleSubscriptionUpdate}
                   />
                 </div>
               )}
