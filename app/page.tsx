@@ -1,11 +1,11 @@
 import CategoryManager from "@/components/CategoryManager";
 import HeroBanner from "@/components/HeroBanner";
+import FunFact from "@/components/FunFact";
 import { getAllCategories } from "@/utils/categories";
 import {
   getSubscriptionsByCategory,
   Subscription,
 } from "@/utils/subscriptions";
-import { getFunFact } from "@/utils/funfact";
 
 export interface CategoryWithSubscriptions {
   id: number;
@@ -35,7 +35,6 @@ async function getCategoriesWithSubscriptions(): Promise<
 
 export default async function Home() {
   const categories = await getCategoriesWithSubscriptions();
-  const funFact = await getFunFact();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -44,9 +43,7 @@ export default async function Home() {
       </header>
 
       <main className="max-w-4xl mx-auto p-6 -mt-8">
-        <div className="text-center p-6">
-          {funFact}
-        </div>
+        <FunFact />
         <CategoryManager initialCategories={categories} />
       </main>
 
