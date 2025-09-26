@@ -28,18 +28,17 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const calculateSubtotal = (subscriptions: Subscription[]) => {
-    let subtotal = 0
-    for(const sub of subscriptions){
-      subtotal += parseFloat(`${sub.cost}`)
-    }
-    return subtotal
+    return subscriptions.reduce((acc, sub) => {
+      if (!sub.cancelled_at) {
+        return acc + parseFloat(`${sub.cost}`);
+      }
+      return acc;
+    }, 0);
   };
 
-  const grandTotal = categories
-    .reduce((acc, category) => {
-      return acc + calculateSubtotal(category.subscriptions);
-    }, 0)
-    
+  const grandTotal = categories.reduce((acc, category) => {
+    return acc + calculateSubtotal(category.subscriptions);
+  }, 0);
 
   const handleAddCategory = async (name: string) => {
     setIsLoading(true);
