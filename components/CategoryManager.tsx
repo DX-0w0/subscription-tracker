@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Subscription } from '@/utils/subscriptions';
-import SubscriptionManager from './SubscriptionManager';
-import CategoryModal from './CategoryModal';
+import { useState } from "react";
+import { Subscription } from "@/utils/subscriptions";
+import SubscriptionManager from "./SubscriptionManager";
+import CategoryModal from "./CategoryModal";
 
 export interface CategoryWithSubscriptions {
   id: number;
@@ -21,20 +21,34 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     initialCategories || []
   );
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
 
+  const calculateSubtotal = (subscriptions: Subscription[]) => {
+    let subtotal = 0
+    for(const sub of subscriptions){
+      subtotal += parseFloat(`${sub.cost}`)
+    }
+    return subtotal
+  };
+
+  const grandTotal = categories
+    .reduce((acc, category) => {
+      return acc + calculateSubtotal(category.subscriptions);
+    }, 0)
+    
+
   const handleAddCategory = async (name: string) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/categories', {
-        method: 'POST',
+      const response = await fetch("/api/categories", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name }),
       });
@@ -48,24 +62,24 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
         setIsCategoryModalOpen(false);
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Failed to add category');
+        alert(errorData.error || "Failed to add category");
       }
     } catch (error) {
-      console.error('Error adding category:', error);
-      alert('An error occurred while adding the category');
+      console.error("Error adding category:", error);
+      alert("An error occurred while adding the category");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDeleteCategory = async (categoryId: number) => {
-    if (window.confirm('Are you sure you want to delete this category?')) {
+    if (window.confirm("Are you sure you want to delete this category?")) {
       setIsLoading(true);
       try {
         const response = await fetch(`/api/categories`, {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ id: categoryId }),
         });
@@ -74,11 +88,11 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
           setCategories((prev) => prev.filter((cat) => cat.id !== categoryId));
         } else {
           const errorData = await response.json();
-          alert(errorData.error || 'Failed to delete category');
+          alert(errorData.error || "Failed to delete category");
         }
       } catch (error) {
-        console.error('Error deleting category:', error);
-        alert('An error occurred while deleting the category');
+        console.error("Error deleting category:", error);
+        alert("An error occurred while deleting the category");
       } finally {
         setIsLoading(false);
       }
@@ -127,7 +141,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
   const handleSubscriptionUpdate = (
     categoryId: number,
     subscriptionId: number,
-    status: 'processing' | 'cancelled',
+    status: "processing" | "cancelled",
     cancelledAt?: string | null
   ) => {
     setCategories((prev) =>
@@ -149,7 +163,12 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Categories</h1>
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold">Categories</h1>
+          <span className="ml-4 text-xl font-bold text-gray-500 dark:text-gray-400">
+            ${grandTotal.toFixed(2)}
+          </span>
+        </div>
         <button
           onClick={() => setIsCategoryModalOpen(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center gap-2"
@@ -191,6 +210,9 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                   </p>
                 </div>
                 <div className="flex items-center">
+                  <span className="mr-4 text-lg font-semibold text-gray-900 dark:text-white">
+                    ${calculateSubtotal(category.subscriptions).toFixed(2)}
+                  </span>
                   {category.subscriptions.length === 0 && (
                     <button
                       onClick={(e) => {
@@ -217,7 +239,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                      expandedCategoryId === category.id ? 'rotate-180' : ''
+                      expandedCategoryId === category.id ? "rotate-180" : ""
                     }`}
                     viewBox="0 0 20 20"
                     fill="currentColor"
