@@ -7,6 +7,8 @@ import {
   Subscription,
 } from "@/utils/subscriptions";
 
+export const revalidate = 0;
+
 export interface CategoryWithSubscriptions {
   id: number;
   name: string;
@@ -39,13 +41,13 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16 px-4">
-        <HeroBanner />
+      <HeroBanner />
       </header>
 
       <main className="max-w-4xl mx-auto p-6 -mt-8">
-        <FunFact />
+      <FunFact />
         <CategoryManager initialCategories={categories} />
-      </main>
+    </main>
 
       <footer className="py-8 text-center text-gray-600 dark:text-gray-400 bg-gradient-to-t from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
         <p>
