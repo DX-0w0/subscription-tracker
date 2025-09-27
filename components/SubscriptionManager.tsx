@@ -28,6 +28,7 @@ const SubscriptionManager = ({
     name: '',
     cost: '',
     billingCycle: 'month', // Default to month
+    renewalDate: '1',
     accountInfo: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +48,7 @@ const SubscriptionManager = ({
           name: newSubscription.name.trim(),
           cost: parseFloat(newSubscription.cost),
           billing_cycle: newSubscription.billingCycle,
+          renewal_date: parseInt(newSubscription.renewalDate),
           account_info: newSubscription.accountInfo,
           category_id: categoryId,
         }),
@@ -59,6 +61,7 @@ const SubscriptionManager = ({
           name: '',
           cost: '',
           billingCycle: 'month',
+          renewalDate: '1',
           accountInfo: '',
         });
         setIsModalOpen(false);
@@ -107,6 +110,7 @@ const SubscriptionManager = ({
       name: '',
       cost: '',
       billingCycle: 'month',
+      renewalDate: '1',
       accountInfo: '',
     });
   };
@@ -152,6 +156,7 @@ const SubscriptionManager = ({
                   {sub.billing_cycle.charAt(0).toUpperCase() +
                     sub.billing_cycle.slice(1)}
                 </span>
+                <span>Renewal Date: {sub.renewal_date}</span>
                 {sub.account_info && (
                   <span className="truncate max-w-[50%]">
                     {sub.account_info}

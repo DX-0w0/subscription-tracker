@@ -4,6 +4,7 @@ interface newSubscription {
   name: string;
   cost: string;
   billingCycle: string;
+  renewalDate: string;
   accountInfo: string;
 }
 
@@ -129,6 +130,32 @@ const SubscriptionModal = ({
               <option value="week">Weekly</option>
               <option value="month">Monthly</option>
               <option value="annual">Annually</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="renewalDate"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Renewal Date
+            </label>
+            <select
+              id="renewalDate"
+              value={newSubscription.renewalDate}
+              onChange={(e) =>
+                setNewSubscription({
+                  ...newSubscription,
+                  renewalDate: e.target.value,
+                })
+              }
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
             </select>
           </div>
 

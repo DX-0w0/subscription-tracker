@@ -7,7 +7,7 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, cost, billing_cycle, account_info, category_id } =
+    const { name, cost, billing_cycle, renewal_date, account_info, category_id } =
       await request.json();
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Invalid billing cycle' }, { status: 400 });
     }
 
+    if (typeof renewal_date !== 'number' || renewal_date < 1 || renewal_date > 31) {
+      return Response.json({ error: 'Invalid renewal date' }, { status: 400 });
+    }
+
     if (typeof category_id !== 'number') {
       return Response.json({ error: 'Invalid category ID' }, { status: 400 });
     }
@@ -36,6 +40,7 @@ export async function POST(request: NextRequest) {
       name.trim(),
       cost,
       billing_cycle,
+      renewal_date,
       account_info || '',
       category_id
     );

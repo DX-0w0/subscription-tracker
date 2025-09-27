@@ -5,6 +5,7 @@ export interface Subscription {
   name: string;
   cost: number;
   billing_cycle: string;
+  renewal_date: number;
   account_info: string;
   category_id: number;
   created_at: string;
@@ -31,13 +32,14 @@ export async function createSubscription(
   name: string,
   cost: number,
   billingCycle: string,
+  renewalDate: number,
   accountInfo: string,
   categoryId: number
 ): Promise<Subscription> {
   try {
     const result = await pool.query(
-      'INSERT INTO subscriptions (name, cost, billing_cycle, account_info, category_id, cancelled_at) VALUES ($1, $2, $3, $4, $5, NULL) RETURNING *',
-      [name, cost, billingCycle, accountInfo, categoryId]
+      'INSERT INTO subscriptions (name, cost, billing_cycle, renewal_date, account_info, category_id, cancelled_at) VALUES ($1, $2, $3, $4, $5, $6, NULL) RETURNING *',
+      [name, cost, billingCycle, renewalDate, accountInfo, categoryId]
     );
     return result.rows[0] as Subscription;
   } catch (error) {
