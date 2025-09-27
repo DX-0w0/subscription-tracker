@@ -31,6 +31,16 @@ export async function getSubscriptionsByCategory(
   }
 }
 
+export async function getAllSubscriptions(userId: number): Promise<Subscription[]> {
+  try {
+    const result = await pool.query('SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+    return result.rows as Subscription[];
+  } catch (error) {
+    console.error('Database error in getAllSubscriptions:', error);
+    throw new Error('Failed to fetch subscriptions from database');
+  }
+}
+
 export async function createSubscription(
   name: string,
   cost: number,
@@ -38,7 +48,7 @@ export async function createSubscription(
   renewalDate: number,
   accountInfo: string,
   categoryId: number,
-  userId: number
+  userId: string
 ): Promise<Subscription> {
   try {
     const result = await pool.query(

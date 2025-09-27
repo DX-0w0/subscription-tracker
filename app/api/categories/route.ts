@@ -1,7 +1,7 @@
 
 import { NextRequest } from 'next/server';
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import {
   getAllCategories,
   createCategory,
@@ -11,7 +11,7 @@ import {
 async function getUserId() {
   const session = await getServerSession(authOptions);
   if (!session || !session.user || !session.user.id) {
-    throw new Error("Not authorized");
+    throw new Error('Not authorized');
   }
   return session.user.id;
 }

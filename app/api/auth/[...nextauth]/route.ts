@@ -10,8 +10,8 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: {  label: "Password", type: "password" }
+        username: { label: 'Username', type: 'text' },
+        password: {  label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
         if (!credentials) {
@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   callbacks: {
     async jwt({ token, user }) {

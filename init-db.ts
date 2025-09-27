@@ -44,17 +44,17 @@ const createTables = async () => {
     `);
 
     if (res.rows.length === 0) {
-        await client.query(`ALTER TABLE subscriptions ADD COLUMN renewal_date INTEGER`);
+        await client.query('ALTER TABLE subscriptions ADD COLUMN renewal_date INTEGER');
     }
 
     // Add a default value to existing rows if renewal_date was just added
-    await client.query(`UPDATE subscriptions SET renewal_date = 1 WHERE renewal_date IS NULL`);
+    await client.query('UPDATE subscriptions SET renewal_date = 1 WHERE renewal_date IS NULL');
 
     // Now, alter the column to be NOT NULL
-    await client.query(`ALTER TABLE subscriptions ALTER COLUMN renewal_date SET NOT NULL`);
+    await client.query('ALTER TABLE subscriptions ALTER COLUMN renewal_date SET NOT NULL');
 
-    await client.query(`ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS renewal_date_check`);
-    await client.query(`ALTER TABLE subscriptions ADD CONSTRAINT renewal_date_check CHECK (renewal_date >= 1 AND renewal_date <= 31)`);
+    await client.query('ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS renewal_date_check');
+    await client.query('ALTER TABLE subscriptions ADD CONSTRAINT renewal_date_check CHECK (renewal_date >= 1 AND renewal_date <= 31)');
 
     // Add user_id to categories if it doesn't exist
     const catRes = await client.query(`
@@ -64,12 +64,12 @@ const createTables = async () => {
     `);
 
     if (catRes.rows.length === 0) {
-        await client.query(`ALTER TABLE categories ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE`);
+        await client.query('ALTER TABLE categories ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE');
     }
 
     // Drop the unique constraint on category name and add a composite unique constraint on name and user_id
-    await client.query(`ALTER TABLE categories DROP CONSTRAINT IF EXISTS categories_name_key`);
-    await client.query(`ALTER TABLE categories ADD CONSTRAINT categories_name_user_id_key UNIQUE (name, user_id)`);
+    await client.query('ALTER TABLE categories DROP CONSTRAINT IF EXISTS categories_name_key');
+    await client.query('ALTER TABLE categories ADD CONSTRAINT categories_name_user_id_key UNIQUE (name, user_id)');
 
     console.log('Tables created and updated successfully!');
   } catch (err) {
