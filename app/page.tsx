@@ -3,7 +3,6 @@ import HeroBanner from '@/components/HeroBanner'
 import { getAllCategories } from '@/utils/categories'
 import { getSubscriptionsByCategory, Subscription } from '@/utils/subscriptions'
 import { getFunFact } from '@/utils/funfact'
-import FunFact from '@/components/FunFact'
 
 export const revalidate = 0
 
