@@ -1,13 +1,25 @@
+
 import { NextRequest } from 'next/server';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import {
   getAllCategories,
   createCategory,
   deleteCategory,
 } from '@/utils/categories';
 
+async function getUserId() {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("Not authorized");
+  }
+  return session.user.id;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const categories = await getAllCategories();
+    const userId = await getUserId();
+    const categories = await getAllCategories(userId);
     return Response.json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -20,13 +32,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getUserId();
     const { name } = await request.json();
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return Response.json({ error: 'Invalid category name' }, { status: 400 });
     }
 
-    const newCategory = await createCategory(name.trim());
+    const newCategory = await createCategory(name.trim(), userId);
     return Response.json(newCategory);
   } catch (error) {
     console.error('Error creating category:', error);
@@ -39,13 +52,14 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const userId = await getUserId();
     const { id } = await request.json();
 
     if (!id || typeof id !== 'number') {
       return Response.json({ error: 'Invalid category ID' }, { status: 400 });
     }
 
-    await deleteCategory(id);
+    await deleteCategory(id, userId);
     return Response.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error('Error deleting category:', error);

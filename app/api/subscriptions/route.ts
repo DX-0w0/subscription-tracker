@@ -1,12 +1,24 @@
+
 import { NextRequest } from 'next/server';
-import { 
-  createSubscription, 
-  deleteSubscription, 
-  updateSubscriptionCancellation 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import {
+  createSubscription,
+  deleteSubscription,
+  updateSubscriptionCancellation,
 } from '@/utils/subscriptions';
+
+async function getUserId() {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("Not authorized");
+  }
+  return session.user.id;
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getUserId();
     const { name, cost, billing_cycle, renewal_date, account_info, category_id } =
       await request.json();
 
@@ -42,7 +54,8 @@ export async function POST(request: NextRequest) {
       billing_cycle,
       renewal_date,
       account_info || '',
-      category_id
+      category_id,
+      userId
     );
 
     return Response.json(newSubscription);
@@ -57,6 +70,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const userId = await getUserId();
     const { id, cancelled_at } = await request.json();
 
     if (typeof id !== 'number') {
@@ -73,7 +87,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const success = await updateSubscriptionCancellation(id, cancelled_at);
+    const success = await updateSubscriptionCancellation(id, userId, cancelled_at);
 
     if (!success) {
       return Response.json(
@@ -82,9 +96,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    return Response.json({ 
+    return Response.json({
       message: cancelled_at ? 'Subscription cancelled successfully' : 'Subscription reactivated successfully',
-      cancelled_at 
+      cancelled_at
     });
   } catch (error) {
     console.error('Error updating subscription cancellation:', error);
@@ -97,6 +111,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const userId = await getUserId();
     const { id } = await request.json();
 
     if (typeof id !== 'number') {
@@ -106,7 +121,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const success = await deleteSubscription(id);
+    const success = await deleteSubscription(id, userId);
 
     if (!success) {
       return Response.json(

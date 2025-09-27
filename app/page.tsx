@@ -1,3 +1,7 @@
+
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 import CategoryManager from '@/components/CategoryManager'
 import HeroBanner from '@/components/HeroBanner'
 import { getAllCategories } from '@/utils/categories'
@@ -13,15 +17,14 @@ export interface CategoryWithSubscriptions {
   subscriptions: Subscription[]
 }
 
-async function getCategoriesWithSubscriptions(): Promise<
+async function getCategoriesWithSubscriptions(userId: number): Promise<
   CategoryWithSubscriptions[]
 > {
-  const categories = await getAllCategories()
+  const categories = await getAllCategories(userId)
 
-  // Fetch subscriptions for each category
   const categoriesWithSubscriptions = await Promise.all(
     categories.map(async (category) => {
-      const subscriptions = await getSubscriptionsByCategory(category.id)
+      const subscriptions = await getSubscriptionsByCategory(category.id, userId)
       return {
         ...category,
         subscriptions,
@@ -33,7 +36,14 @@ async function getCategoriesWithSubscriptions(): Promise<
 }
 
 export default async function Home() {
-  const categories = await getCategoriesWithSubscriptions()
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user || !session.user.id) {
+    redirect("/login");
+  }
+
+  const userId = session.user.id;
+  const categories = await getCategoriesWithSubscriptions(userId)
   const funFact = await getFunFact()
 
   return (
