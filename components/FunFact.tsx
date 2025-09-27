@@ -1,24 +1,27 @@
-"use client";
+// "use client";
 
-import { useEffect, useState } from "react";
+import { getFunFact } from '@/utils/funfact'
 
-export default function FunFact() {
-  const [funFact, setFunFact] = useState("");
+// import { useEffect, useState } from "react";
 
-  useEffect(() => {
-    async function fetchFunFact() {
-      try {
-        const response = await fetch("/api/funfact");
-        const data = await response.json();
-        setFunFact(data.funFact);
-      } catch (error) {
-        console.error("Error fetching fun fact:", error);
-        setFunFact("Failed to load fun fact.");
-      }
-    }
+export default async function FunFact() {
+  // const [funFact, setFunFact] = useState("");
 
-    fetchFunFact();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchFunFact() {
+  //     try {
+  //       const response = await fetch("/api/funfact");
+  //       const data = await response.json();
+  //       setFunFact(data.funFact);
+  //     } catch (error) {
+  //       console.error("Error fetching fun fact:", error);
+  //       setFunFact("Failed to load fun fact.");
+  //     }
+  //   }
 
-  return <div className="text-center p-6">{funFact}</div>;
+  //   fetchFunFact();
+  // }, []);
+  const funFact = await getFunFact()
+
+  return <div className='text-center p-6'>{funFact}</div>
 }
