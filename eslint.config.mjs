@@ -20,7 +20,7 @@ const eslintConfig = [
       'next-env.d.ts',
     ],
     rules: {
-      quotes: ['error', 'single'],
+      quotes: ['single'],
     },
   },
 ];
