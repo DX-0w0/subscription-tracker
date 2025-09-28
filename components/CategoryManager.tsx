@@ -20,7 +20,7 @@ async function getCategoriesWithSubscriptions(): Promise<
   const resCategories = await fetch("/api/categories");
   const categories = await resCategories.json();
   const resSubscriptions = await fetch("/api/subscriptions");
-  const allSubscriptions = await resSubscriptions.json();
+  const allSubscriptions: Subscription[] = await resSubscriptions.json();
 
   const subscriptionsByCategoryId = allSubscriptions.reduce((acc, sub) => {
     if (!acc[sub.category_id]) {
