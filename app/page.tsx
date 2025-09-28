@@ -1,51 +1,32 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import CategoryManager from "@/components/CategoryManager";
-import HeroBanner from "@/components/HeroBanner";
-import { getAllCategories } from "@/utils/categories";
-import { getAllSubscriptions, Subscription } from "@/utils/subscriptions";
-import { getFunFact } from "@/utils/funfact";
+'use client';
 
-export const revalidate = 0;
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import CategoryManager from '@/components/CategoryManager';
+import HeroBanner from '@/components/HeroBanner';
+import { useEffect, useState } from 'react';
+import Loading from './loading';
 
-export interface CategoryWithSubscriptions {
-  id: number;
-  name: string;
-  created_at: string;
-  subscriptions: Subscription[];
-}
+export default function Home() {
+  const { data: session, status } = useSession();
+  const [funFact, setFunFact] = useState('');
 
-async function getCategoriesWithSubscriptions(
-  userId: number
-): Promise<CategoryWithSubscriptions[]> {
-  const categories = await getAllCategories(userId);
-  const allSubscriptions = await getAllSubscriptions(userId);
+  useEffect(() => {
+    const fetchFunFact = async () => {
+      const res = await fetch('/api/funfact');
+      const data = await res.json();
+      setFunFact(data.funFact);
+    };
+    fetchFunFact();
+  }, []);
 
-  const subscriptionsByCategoryId = allSubscriptions.reduce((acc, sub) => {
-    if (!acc[sub.category_id]) {
-      acc[sub.category_id] = [];
-    }
-    acc[sub.category_id].push(sub);
-    return acc;
-  }, {} as Record<number, Subscription[]>);
-
-  return categories.map((category) => ({
-    ...category,
-    subscriptions: subscriptionsByCategoryId[category.id] || [],
-  }));
-}
-
-export default async function Home() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user || !session.user.id) {
-    redirect("/login");
+  if (status === 'loading') {
+    return <Loading />;
   }
 
-  const userId = session.user.id;
-  const categories = await getCategoriesWithSubscriptions(userId);
-  const funFact = await getFunFact();
+  if (!session || !session.user || !session.user.id) {
+    redirect('/login');
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -55,7 +36,7 @@ export default async function Home() {
 
       <main className="max-w-4xl mx-auto p-6 -mt-8">
         <div className="text-center p-6">{funFact}</div>
-        <CategoryManager initialCategories={categories} />
+        <CategoryManager />
       </main>
 
       <footer className="py-8 text-center text-gray-600 dark:text-gray-400 bg-gradient-to-t from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">

@@ -1,9 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Subscription } from '@/utils/subscriptions';
-import SubscriptionManager from './SubscriptionManager';
-import CategoryModal from './CategoryModal';
+import { useState, useEffect } from "react";
+import { Subscription } from "@/utils/subscriptions";
+import SubscriptionManager from "./SubscriptionManager";
+import CategoryModal from "./CategoryModal";
+import Loading from "@/app/loading";
+import { Category } from "@/utils/categories";
 
 export interface CategoryWithSubscriptions {
   id: number;
@@ -12,20 +14,45 @@ export interface CategoryWithSubscriptions {
   subscriptions: Subscription[];
 }
 
-interface CategoryManagerProps {
-  initialCategories: CategoryWithSubscriptions[];
+async function getCategoriesWithSubscriptions(): Promise<
+  CategoryWithSubscriptions[]
+> {
+  const resCategories = await fetch("/api/categories");
+  const categories = await resCategories.json();
+  const resSubscriptions = await fetch("/api/subscriptions");
+  const allSubscriptions = await resSubscriptions.json();
+
+  const subscriptionsByCategoryId = allSubscriptions.reduce((acc, sub) => {
+    if (!acc[sub.category_id]) {
+      acc[sub.category_id] = [];
+    }
+    acc[sub.category_id].push(sub);
+    return acc;
+  }, {} as Record<number, Subscription[]>);
+
+  return categories.map((category: Category) => ({
+    ...category,
+    subscriptions: subscriptionsByCategoryId[category.id] || [],
+  }));
 }
 
-const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
-  const [categories, setCategories] = useState<CategoryWithSubscriptions[]>(
-    initialCategories || []
-  );
+const CategoryManager = () => {
+  const [categories, setCategories] = useState<CategoryWithSubscriptions[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [expandedCategoryId, setExpandedCategoryId] = useState<number | null>(
     null
   );
-  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const cats = await getCategoriesWithSubscriptions();
+      setCategories(cats);
+      setIsLoading(false);
+    };
+    fetchData();
+  }, []);
 
   const calculateSubtotal = (subscriptions: Subscription[]) => {
     return subscriptions.reduce((acc, sub) => {
@@ -44,10 +71,10 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/categories', {
-        method: 'POST',
+      const response = await fetch("/api/categories", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name }),
       });
@@ -61,24 +88,24 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
         setIsCategoryModalOpen(false);
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Failed to add category');
+        alert(errorData.error || "Failed to add category");
       }
     } catch (error) {
-      console.error('Error adding category:', error);
-      alert('An error occurred while adding the category');
+      console.error("Error adding category:", error);
+      alert("An error occurred while adding the category");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDeleteCategory = async (categoryId: number) => {
-    if (window.confirm('Are you sure you want to delete this category?')) {
+    if (window.confirm("Are you sure you want to delete this category?")) {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/categories', {
-          method: 'DELETE',
+        const response = await fetch("/api/categories", {
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ id: categoryId }),
         });
@@ -87,11 +114,11 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
           setCategories((prev) => prev.filter((cat) => cat.id !== categoryId));
         } else {
           const errorData = await response.json();
-          alert(errorData.error || 'Failed to delete category');
+          alert(errorData.error || "Failed to delete category");
         }
       } catch (error) {
-        console.error('Error deleting category:', error);
-        alert('An error occurred while deleting the category');
+        console.error("Error deleting category:", error);
+        alert("An error occurred while deleting the category");
       } finally {
         setIsLoading(false);
       }
@@ -140,7 +167,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
   const handleSubscriptionUpdate = (
     categoryId: number,
     subscriptionId: number,
-    status: 'processing' | 'cancelled',
+    status: "processing" | "cancelled",
     cancelledAt?: string | null
   ) => {
     setCategories((prev) =>
@@ -158,6 +185,10 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
       )
     );
   };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -238,7 +269,7 @@ const CategoryManager = ({ initialCategories }: CategoryManagerProps) => {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                      expandedCategoryId === category.id ? 'rotate-180' : ''
+                      expandedCategoryId === category.id ? "rotate-180" : ""
                     }`}
                     viewBox="0 0 20 20"
                     fill="currentColor"

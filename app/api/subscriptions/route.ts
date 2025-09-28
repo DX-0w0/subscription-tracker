@@ -1,8 +1,8 @@
-
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import {
+  getAllSubscriptions,
   createSubscription,
   deleteSubscription,
   updateSubscriptionCancellation,
@@ -14,6 +14,20 @@ async function getUserId() {
     throw new Error('Not authorized');
   }
   return session.user.id;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const userId = await getUserId();
+    const subscriptions = await getAllSubscriptions(userId);
+    return Response.json(subscriptions);
+  } catch (error) {
+    console.error('Error fetching subscriptions:', error);
+    return Response.json(
+      { error: 'Failed to fetch subscriptions' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
